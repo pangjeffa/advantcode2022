@@ -29,3 +29,13 @@ zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw: first marker after character 11
 How many characters need to be processed before the first start-of-packet marker is detected?
 
 '''
+
+with open("./input2.txt", "r") as f:
+    arr = f.read()
+num = 0
+while num < len(arr)+4:
+    if len(set(arr[num:num+4])) == 4:
+        break
+    num+=1
+
+print(num+4)
