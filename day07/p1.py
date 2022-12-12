@@ -74,15 +74,38 @@ To begin, find all of the directories with a total size of at most 100000, then 
 
 Find all of the directories with a total size of at most 100000. What is the sum of the total sizes of those directories?
 '''
+
+
+def parseCommand(input):
+    spaceCount = 0
+    for i in range(len(input)):
+        if input[i] == ' ' and spaceCount == 1:
+            return input[prev+1:i], input[i+1:]
+        if input[i] == ' ':
+            prev = i
+            spaceCount +=1
+
 class Folder:
 
-    def __init__(self,name:str):
+    def __init__(self,name:str, parent= None):
         if not name:
             raise Exception("Folder must have a name")
         self.level = 0
         self.name = name
+        self.parent = parent
         self.folders = []
         self.files = []
+    
+    def checkFolder(self,name:str):
+        for folder in self.folders:
+          if name == folder.name:
+            return folder
+        return False
+    
+    def addFolder(self,name:str):
+        self.folders.append(Folder(name,self))
+
+
 
 commands = {'cd':'do something', 'ls':'do something'}
 outputSpace = '  '
@@ -90,16 +113,42 @@ with open("./input.txt", "r") as f:
     inPut = f.read().split('\n')
 
 currentLocation = '/'
+current = head = Folder('/')
+
+lsFlag = False
+
 for item in inPut:
-    if item[:4] == '$ cd':
-        if item[5] == '/':
-            currentLocation = item[5:]
-        elif item[5:7] == '..':
-            currentLocation = currentLocation[:-2]
-        else:
-            currentLocation += item[5:]
-            currentLocation += '/'
+    
     if item[0] == '$':
-        print(currentLocation)
-outPut = '- / (dir)\n'
+        lsFlag = False
+        print(item)
+        command, mod = parseCommand(item)
+        if mod == '..':
+          #moves the pointer up a folder leve
+            current = current.parent
+        elif command == 'cd':
+            current = current.checkFolder(mod)
+
+#         ##Do Commands type things
+
+#     else:
+#         ##Do other things
+#         pass
+#     continue
+
+#     if item[:4] == '$ cd':
+#         if item[5] == '/':
+#             currentLocation = item[5:]
+#         elif item[5:7] == '..':
+#             currentLocation = currentLocation[:-2]
+#         else:
+#             currentLocation += item[5:]
+#             currentLocation += '/'
+#     if item[0] == '$':
+#         print(currentLocation)
+# outPut = '- / (dir)\n'
 print(inPut)
+
+a= '$ cd dd 23'
+# print(parseCommand(a))
+print(current)
