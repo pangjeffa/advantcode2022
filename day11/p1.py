@@ -217,20 +217,21 @@ import re
 
 class badMonkey():
 
-	def __init__(self,number:int, bag:list,operation:tuple, test:int, conditions:tuple):
+	def __init__(self,number:int, bag:list,operation:tuple, test:int, target:tuple):
 		print(f"Creating monkey {number}...")
 		self.number = number
 		self.bag = bag
 		self.itemsInspected = 0
 		self.operation = operation
 		self.test = test
-		self.conditions = conditions
+		self.target = target
         
 
 	def getInfo(self):
 		print(f"Monkey {self.number} info:")
 		print(f"Bag: {self.bag}")
-		print(f"Items Inpsected: {self.itemsInspected}")
+		print(f"Items Inspected: {self.itemsInspected}")
+		return ''
 
 	def inspectBag(self):
 		'''
@@ -238,14 +239,37 @@ class badMonkey():
 		'''
 		print(f"Monkey {self.number} is Inspecting Items in Bag...")
 		returnBag = []
-		for item in self.bag:
+		while self.bag:
 			self.itemsInspected += 1
-			
-			returnBag.append({"Target": monkeyID,
-			"Concern": concern})
+			item = self.bag.pop(0)
 
+			item = self.newOperation(item)//3
+			# print(self.operation)
+			returnBag.append({"Target": self.findTarget(item),
+			"Concern": item})
+		return returnBag
 
+	def findTarget(self,concern:int):
+		# if not 0, return the true value for target
+		if not concern % self.test:
+			return self.target[0]
+		return self.target[1]
 
+	def newOperation(self, concern:int):
+		if self.operation[0] == '+':
+			concern += self.operation[1]
+		if self.operation[0] == '-':
+			concern -= self.operation[1]
+		if self.operation[0] == '*':
+			concern *= self.operation[1]
+		if self.operation[0] == '/':
+			concern /= self.operation[1]
+		if self.operation[0] == '**':
+			concern *= concern
+		return concern
+	
+	def catchItem(self, concern:int):
+		self.bag.append(concern)
 
 
 
@@ -262,27 +286,41 @@ def processMonkey(monkey:list):
 	for num in concern:
 		bag.append(int(num))
 
-	print(monkey)
-	operation = re.search('[-+\\*]+', monkey[2])[0]
-	operationMod = int(getNumbers(monkey[2])[0])
+
+	if getNumbers(monkey[2]):
+		operation = re.search('[-+\\*]+', monkey[2])[0]
+		operationMod = int(getNumbers(monkey[2])[0])
+	else:
+		operation = '**'
+		operationMod = '0'
+
 	test = int(getNumbers(monkey[3])[0])
-	TF = (int(getNumbers(monkey[4])[0]),int(getNumbers(monkey[5])[0]))
+	target = (int(getNumbers(monkey[4])[0]),int(getNumbers(monkey[5])[0]))
 
 	# print(monkeyNumber, bag, operation, operationMod, test, TF)
-	return badMonkey(monkeyNumber, bag, (operationMod, operation), test, TF)
+	return badMonkey(monkeyNumber, bag, (operation, operationMod), test, target)
 
 
 
-with open("./input.txt", "r") as f:
+with open("./input2.txt", "r") as f:
     inputFile = [monkey.split('\n') for monkey in f.read().split('\n\n')]
 
 monkeys = []
 
 for item in inputFile:
-	print(item)
 	monkeys.append(processMonkey(item))
 
 
-# for monkey in monkeys:
-# 	print(monkey.getInfo())
+for monkey in monkeys:
+	print(monkey.getInfo())
 
+# print(monkeys[0].inspectBag())
+
+for count in range(20):
+	for monkey in monkeys:
+		items = monkey.inspectBag()
+		for item in items:
+			monkeys[item['Target']].catchItem(item['Concern'])
+
+for monkey in monkeys:
+	print(monkey.getInfo())
