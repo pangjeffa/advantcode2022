@@ -122,7 +122,7 @@ class badMonkey():
 			self.itemsInspected += 1
 			item = self.bag.pop(0)
 
-			item = self.newOperation(item)//3
+			item = self.newOperation(item)%10
 			# print(self.operation)
 			returnBag.append({"Target": self.findTarget(item),
 			"Concern": item})
@@ -144,7 +144,7 @@ class badMonkey():
 		if self.operation[0] == '/':
 			concern /= self.operation[1]
 		if self.operation[0] == '**':
-			concern *= concern
+			concern = concern*concern
 		return concern
 	
 	def catchItem(self, concern:int):
@@ -198,10 +198,19 @@ for monkey in monkeys:
 # print(monkeys[0].inspectBag())
 
 for count in tqdm(range(10000)):
+	# if count%100 == 0:
+	# 	for monkey in monkeys:
+	# 		monkey.getInfo()
 	for monkey in monkeys:
+		
 		items = monkey.inspectBag()
+		
 		for item in items:
+			
 			monkeys[item['Target']].catchItem(item['Concern'])
+
+for monkey in monkeys:
+	monkey.getInfo()
 
 count = []
 for monkey in monkeys:
